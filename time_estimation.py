@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 
 import cmd, sys, time
+import inflect
+
+pluralizer = inflect.engine()
 
 class EstimatorShell(cmd.Cmd):
 	intro = 'Time estimation system.'
@@ -78,39 +81,24 @@ def proc(arg):
 		except ValueError:
 			print('"%s" is not a valid number, skipping.' % (a))
 	return ret
+
 def wordtime(sec):
 	ret = ''
 	eta = time.time()+sec
 	if sec >= 60*60*24:
 		days = int(sec/(60*60*24))
-		if days > 1:
-			d = 'days'
-		else:
-			d = 'day'
-		ret += '%d %s, '%(days,d)
+		ret += '%d %s, '%(days, pluralizer.plural("day", days))
 		sec -= 60*60*24*days
 	if sec >= 60*60:
 		hours = int(sec/(60*60))
-		if hours>1:
-			h = 'hours'
-		else:
-			h = 'hour'
-		ret += '%d %s, '%(hours,h)
+		ret += '%d %s, '%(days, pluralizer.plural("hour", hours))
 		sec -= 60*60*hours
 	if sec >= 60:
 		minutes = int(sec/60)
-		if minutes>1:
-			m = 'minutes'
-		else:
-			m = 'minute'
-		ret += '%d %s, '%(minutes,m)
+		ret += '%d %s, '%(minutes, pluralizer.plural("minute", minutes))
 		sec -= 60*minutes
 	if sec > 0:
-		if sec>1:
-			s = 'seconds'
-		else:
-			s = 'second'
-		ret += '%d %s'%(sec,s)
+		ret += '%d %s'%(sec, pluralizer.plural("second", sec))
 	ret = ret.strip(' ,')
 	ret += ' ('+time.strftime('%m/%d/%y %H:%M:%S',time.localtime(eta))+')'
 	return ret
